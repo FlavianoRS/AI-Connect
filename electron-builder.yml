@@ -1,0 +1,32 @@
+# Empacotamento do AI Connect: `npm run empacotar` gera o instalador em release/.
+appId: br.com.sankhya.aiconnect
+productName: AI Connect
+
+directories:
+  output: release
+  buildResources: assets
+
+files:
+  - dist/**/*
+  - '!dist/**/*.test.js'
+  - assets/**/*
+  - telas/**/*
+  - package.json
+
+asar: true
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: assets/icone.ico
+
+nsis:
+  # Por usuário: instala sem pedir administrador.
+  perMachine: false
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: false
+  createStartMenuShortcut: true
+  shortcutName: AI Connect
+  artifactName: AI-Connect-Setup-${version}.${ext}

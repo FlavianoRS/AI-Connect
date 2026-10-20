@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+  <title>AI Connect</title>
+  <style>
+    /* Identidade visual do modelo de apresentação Sankhya 2026: marinho, verde Sankhya e Work Sans. */
+    @font-face { font-family:'Work Sans'; font-weight:300 700; src:url('fontes/WorkSans-latin.woff2') format('woff2'); }
+    :root {
+      --marinho:#0b1524; --marinho-2:#1c2638; --verde:#00d666; --verde-forte:#00cd5e;
+      --fundo:#f3f3f3; --cartao:#fff; --texto:#111827; --suave:#6b7280; --borda:#e1e3e8;
+      --ok:#00994a; --erro:#d93036;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fundo:#0b1524; --cartao:#151f30; --texto:#e8eaed; --suave:#9aa3b2; --borda:#2a3548; --ok:#00d666; --erro:#ff6b70; }
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font:14px/1.45 'Work Sans', 'Segoe UI', sans-serif; background:var(--fundo); color:var(--texto); }
+    header {
+      padding:20px 20px 18px; color:#fff;
+      background:linear-gradient(160deg, var(--marinho-2) 0%, var(--marinho) 60%);
+      border-bottom:2px solid var(--verde);
+    }
+    h1 { display:flex; align-items:center; gap:10px; font-size:20px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:0 0 4px; }
+    /* traços diagonais verdes, como o símbolo da marca */
+    .sinal { width:20px; height:20px; border-radius:4px; background:repeating-linear-gradient(-60deg, var(--verde) 0 4px, transparent 4px 8px); }
+    .sub { color:rgba(255,255,255,.7); margin:0 0 12px; font-size:13px; font-weight:300; }
+    .estado { display:inline-flex; align-items:center; gap:8px; padding:4px 12px; border:1px solid rgba(255,255,255,.15); border-radius:999px; font-size:12px; color:rgba(255,255,255,.85); }
+    .estado::before { content:''; width:8px; height:8px; border-radius:50%; background:#9ca3af; }
+    .estado.ok::before { background:var(--verde); box-shadow:0 0 8px var(--verde); }
+    .estado.ok { color:rgba(255,255,255,.85); }
+    .estado.erro { color:#ff9a9d; border-color:rgba(229,72,77,.5); }
+    .estado.erro::before { background:#e5484d; }
+    main { padding:16px; }
+    section { background:var(--cartao); border:1px solid var(--borda); border-radius:10px; padding:14px 16px; margin-bottom:12px; }
+    h2 { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--suave); margin:0 0 6px; }
+    label { display:block; margin:12px 0 4px; font-weight:600; font-size:13px; }
+    input, select { width:100%; padding:8px 10px; border:1px solid var(--borda); border-radius:8px; background:var(--fundo); color:var(--texto); font:inherit; outline:none; }
+    input:focus, select:focus { border-color:var(--verde); box-shadow:0 0 0 3px rgba(0,214,102,.18); }
+    .linha { display:flex; gap:10px; } .linha > div { flex:1; }
+    .dica { color:var(--suave); font-size:12px; margin-top:4px; }
+    .check { display:flex; align-items:center; gap:8px; font-weight:400; margin-top:14px; }
+    .check input { width:auto; accent-color:var(--verde); }
+    ul { list-style:none; padding:0; margin:0; }
+    li { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--borda); word-break:break-all; }
+    li:last-child { border-bottom:0; }
+    button { padding:9px 18px; border-radius:999px; border:1px solid var(--borda); background:var(--cartao); color:var(--texto); font:inherit; font-weight:500; cursor:pointer; }
+    button:hover { border-color:var(--verde); }
+    button.principal { background:var(--verde); border-color:var(--verde); color:#000; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+    button.principal:hover { background:var(--verde-forte); }
+    button.peq { padding:3px 10px; font-size:12px; }
+    button:disabled { opacity:.5; cursor:default; }
+    .acoes { display:flex; gap:8px; justify-content:flex-end; }
+    .ok { color:var(--ok); } .erro { color:var(--erro); }
+    #resultado { white-space:pre-wrap; font-size:13px; margin-top:10px; }
+    #resultado:empty { display:none; }
+    .item { border:1px solid var(--borda); border-left:3px solid var(--verde); border-radius:8px; padding:10px 12px; margin:10px 0; }
+    .item-topo { display:flex; align-items:center; gap:8px; }
+    .item-topo .ordem { font-weight:600; font-size:12px; color:var(--suave); min-width:22px; }
+    .item-topo select { flex:1; }
+    .item-topo button { padding:4px 9px; }
+    .item label { margin-top:8px; }
+    #adicionar { margin-top:2px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><span class="sinal"></span>AI Connect</h1>
+    <p class="sub">Liga o Sankhya ao assistente de IA instalado neste computador, usando o seu login.</p>
+    <div id="estadoServidor" class="estado"></div>
+  </header>
+
+  <main>
+
+  <section>
+    <h2>Assistentes</h2>
+    <div class="dica">Em ordem de preferência: o 1º responde; os outros entram quando ele falha.</div>
+    <div id="assistentes"></div>
+    <button id="adicionar" class="peq">+ Adicionar assistente</button>
+    <label for="trocarEm">Passar para o próximo da lista quando</label>
+    <select id="trocarEm">
+      <option value="limite">o limite de uso (tokens) do atual acabar</option>
+      <option value="falha">qualquer falha (erro ou tempo esgotado)</option>
+    </select>
+    <label for="tempoLimite">Tempo limite da resposta (segundos)</label>
+    <input id="tempoLimite" type="number" min="10" max="1800">
+  </section>
+
+  <section>
+    <h2>Conexão</h2>
+    <label for="porta">Porta local</label>
+    <input id="porta" type="number" min="1024" max="65535">
+    <div class="dica">A mesma porta precisa estar configurada no addon RAG do Sankhya.</div>
+    <label>Endereços do Sankhya autorizados</label>
+    <ul id="origens"></ul>
+    <div class="dica">São adicionados quando você clica em "Permitir" no aviso que aparece na primeira pergunta.</div>
+    <label class="check"><input id="inicioAutomatico" type="checkbox"> Iniciar com o Windows</label>
+  </section>
+
+  <section>
+    <div class="acoes">
+      <button id="testar">Testar assistente</button>
+      <button id="salvar" class="principal">Salvar</button>
+    </div>
+    <div id="resultado"></div>
+  </section>
+
+  </main>
+
+  <script src="configuracao.js"></script>
+</body>
+</html>
