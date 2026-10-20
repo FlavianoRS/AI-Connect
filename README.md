@@ -2,7 +2,7 @@
 
 App de bandeja (Windows) que expõe, por HTTP em `127.0.0.1`, o assistente de IA de linha de comando já instalado e logado na máquina do usuário — **Claude Code**, **Codex**, **OpenCode**, **Gemini CLI** ou **Cursor Agent**. Qualquer página web aberta no navegador (de qualquer sistema rodando na rede local ou na própria máquina) pode pedir um texto gerado por IA sem que o sistema precise guardar, pagar ou gerenciar uma chave de API: quem gera a resposta é o assistente que a pessoa já usa no dia a dia, com o login e a assinatura dela.
 
-Nasceu para o addon de RAG do ERP Sankhya ([`rag-snk`](https://github.com/FlavianoRS)), mas a API é genérica — serve para qualquer aplicação web (interna, SaaS on-premise, ferramenta interna) que precise gerar texto com IA sem integrar uma API paga.
+Nasceu da necessidade de usar IA em aplicações onde não é permitido fazer OAuth com o provedor, e como alternativa a precisar obter e gerenciar chaves de API de provedores que a empresa já assina por outro caminho (os assistentes de linha de comando). A API é genérica — serve para qualquer aplicação web (interna, SaaS on-premise, ferramenta interna) que precise gerar texto com IA sem integrar uma API paga.
 
 ## Por que isso existe
 
